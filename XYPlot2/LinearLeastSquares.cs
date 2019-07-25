@@ -48,16 +48,44 @@ namespace XYPlot2
         }
     }
 
+    class CustomLLS : LinearLeastSquares
+    {
+        Func<Point, LLSPoint> Converter;
+
+        public CustomLLS(IEnumerable<Point> points, Func<Point, LLSPoint> converter) : base(points.Select(p => converter(p))) {
+            Converter = converter;
+        }
+
+        private LLSPoint ToLLS(Point p) { return Converter(p); }
+
+        public void Add(Point p)
+        {
+            var llsp = ToLLS(p);
+            Add(llsp);
+        }
+
+        public override float NextError(Point p) { return base.NextError(ToLLS(p)); }
+        public override void Update(Point p) { base.Update(ToLLS(p)); }
+
+    }
+
+
     class LatitudeLLS : LinearLeastSquares
     {
         //public LatitudeLLS(IEnumerable<Point> points) : base(points.Select(p => new LLSPoint() { X = (float)p.T / 1000000, Y = p.Y })) { }
         public LatitudeLLS(IEnumerable<Point> points) : base(points.Select(p => new LLSPoint() { X = (float)p.T , Y = p.Y })) { }
+
+        private LLSPoint ToLLS(Point p) { return new LLSPoint() { X = p.T, Y = p.Y };}
 
         public void Add(Point p)
         {
             var llsp = new LLSPoint() { X = p.T, Y = p.Y };
             Add(llsp);
         }
+
+        public override float NextError(Point p) { return base.NextError(ToLLS(p)); }
+        public override void Update(Point p) { base.Update(ToLLS(p)); }
+
     }
 
     class LongitudeLLS : LinearLeastSquares
@@ -65,11 +93,17 @@ namespace XYPlot2
         //public LongitudeLLS(IEnumerable<Point> points) : base(points.Select(p => new LLSPoint() { X = (float)p.T / 1000000, Y = p.X })) { }
         public LongitudeLLS(IEnumerable<Point> points) : base(points.Select(p => new LLSPoint() { X = (float)p.T , Y = p.X })) { }
 
+        private LLSPoint ToLLS(Point p) { return new LLSPoint() { X = p.T, Y = p.X }; }
+
         public void Add(Point p)
         {
             var llsp = new LLSPoint() { X = p.T, Y = p.X };
             Add(llsp);
         }
+
+        public override float NextError(Point p) { return base.NextError(ToLLS(p)); }
+        public override void Update(Point p) { base.Update(ToLLS(p)); }
+
     }
 
     class LinearLeastSquares
@@ -118,8 +152,14 @@ namespace XYPlot2
         }
 
         public float NextError(LLSPoint p) {
-            return (A + B * p.X) - p.Y;
+            return Math.Abs( (A + B * p.X) - p.Y);
         }
+
+        public virtual float NextError(Point p)
+        {
+            return 0.0f;
+        }
+
 
         public float AverageError()
         {
@@ -132,6 +172,19 @@ namespace XYPlot2
             sumY += p.Y;
             sumX2 += p.X * p.X;
             sumXY += p.X * p.Y;
+            n++;
+        }
+
+        public virtual void Update(Point p)
+        {
+        }
+
+
+        public void Update(LLSPoint p)
+        {
+            Add(p);
+            CalcAvgs();
+            CalcAB();
         }
 
         public Line Line {

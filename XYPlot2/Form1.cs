@@ -28,8 +28,9 @@ namespace XYPlot2
 
         private void GpxDataPlot() {
             // lat lon alt
-            Tuple<List<Point>, List<Point>, List<Point>> t = ReadGpx.ReadGpxFile2PointSeries("C:\\Users\\Matti\\Documents\\Visual Studio 2017\\Projects\\XYPlot\\TestX7.gpx");
-
+            Tuple<List<Point>, List<Point>, List<Point>> t = ReadGpx.ReadGpxFile2PointSeries(
+                "C:\\Users\\Matti\\Documents\\Visual Studio 2017\\Projects\\XYPlot\\TestX7.gpx");
+                //"C:\\Users\\Matti\\Documents\\Visual Studio 2017\\gps\\TestX7.gpx");
 
             //DrawTimeSeries(t.Item1.Take(100).ToList(), false);
             //DrawTimeSeries(t.Item1, false);
@@ -53,13 +54,19 @@ namespace XYPlot2
         {
             //var lats = new LatitudeLLS(t.Item1);
             var lats = new LatitudeLLS(ch1p.Take(4));
-            var lons = new LatitudeLLS(ch2p);
-            var ps = LineToPoints(lats.Line, 0, 10, ch1p.ToList());
-            foreach (var p in ps) { p.SD(); }
+            var lons = new LongitudeLLS(ch2p);
+            var ps = LineToPoints(lats.Line, 0, 20, ch1p.ToList());
+            //foreach (var p in ps) { p.SD(); }
 
-            System.Diagnostics.Debug.WriteLine("aa");
+            //DrawTimeSeries(ps, false, "p1", chart1, SeriesChartType.Line, false);
 
-            DrawTimeSeries(ps, false, "p1", chart1, SeriesChartType.Line, false);
+            var iter = new LLSIteration(ch1p, ch2p);
+            var psLat = iter.GetLatPointSeries();
+            var psLon = iter.GetLonPointSeries();
+            DrawTimeSeries(psLat, false, "pslat", chart1, SeriesChartType.Line, false);
+            DrawTimeSeries(psLon, false, "pslon", chart2, SeriesChartType.Line, false);
+
+            //var e2 = iter.IndLatLines.ElementAt(2);
 
             //var lls = new LinearLeastSquares(ch1p);
 

@@ -125,7 +125,8 @@ namespace XYPlot2
         {
             XmlDocument xdoc = new XmlDocument();
 
-            path = path ?? "C:\\Users\\mreijonen\\Desktop\\TestX6.gpx";
+            path = path ?? "C:\\Users\\Matti\\Documents\\Visual Studio 2017\\gps\\gpx\\TestX6.gpx";
+            //path = path ?? "C:\\Users\\mreijonen\\Desktop\\TestX6.gpx";
             xdoc.Load(path);
             //var count = xdoc.DocumentElement.ChildNodes[0].ChildNodes[2].ChildNodes.Count;
 
