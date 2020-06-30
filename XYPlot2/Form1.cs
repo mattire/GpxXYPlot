@@ -29,8 +29,8 @@ namespace XYPlot2
         private void GpxDataPlot() {
             // lat lon alt
             Tuple<List<Point>, List<Point>, List<Point>> t = ReadGpx.ReadGpxFile2PointSeries(
-                "C:\\Users\\Matti\\Documents\\Visual Studio 2017\\Projects\\XYPlot\\TestX7.gpx");
-                //"C:\\Users\\Matti\\Documents\\Visual Studio 2017\\gps\\TestX7.gpx");
+                //"C:\\Users\\Matti\\Documents\\Visual Studio 2017\\Projects\\XYPlot\\TestX7.gpx");
+                "C:\\Users\\Matti\\Documents\\Visual Studio 2017\\gps\\TestX7.gpx");
 
             //DrawTimeSeries(t.Item1.Take(100).ToList(), false);
             //DrawTimeSeries(t.Item1, false);
@@ -66,22 +66,13 @@ namespace XYPlot2
             DrawTimeSeries(psLat, false, "pslat", chart1, SeriesChartType.Line, false);
             DrawTimeSeries(psLon, false, "pslon", chart2, SeriesChartType.Line, false);
 
-            //var e2 = iter.IndLatLines.ElementAt(2);
-
-            //var lls = new LinearLeastSquares(ch1p);
-
-            ////var gpslls = new StaticGpsLLSPath(t);
-            //var gpslls = new StaticGpsLLSPath(ch1p, ch2p);
-            ////var ps1 = gpslls.FstLatLine.Line.GetLinePointsTime2X(t.Item1.Take(9).ToList());
-            //var ps1 = gpslls.FstLatLine.Line.GetLinePointsTime2X(ch1p.Take(9).ToList());
-            //var ps2 = gpslls.FstLonLine.Line.GetLinePointsTime2X(ch2p.Take(9).ToList());
-            //
-            ////foreach (var item in ps1) { item.SD(); }
-            //
-            //DrawTimeSeries(ps1, false, "ps1", chart1, SeriesChartType.Line, false);
-            ////DrawTimeSeries(ps2, false, "ps2", chart1, SeriesChartType.Line, true);
-            ////gpslls.mLatPoints.Take(2);
-            ////gpslls.FstLatLine
+            var points = iter.GetTurningPoints();
+            DrawTimeSeries(points, false, "points", chart1,
+                SeriesChartType.Point, false, System.Drawing.Color.Green);
+            //foreach (var p in points)
+            //{
+            //    System.Diagnostics.Debug.WriteLine($"{p.T}, {p.X}, {p.Y}");
+            //}
         }
 
         private void LinearRegressionTest(object sender, EventArgs e)
@@ -140,7 +131,14 @@ namespace XYPlot2
 
         Dictionary<Chart, long> xBases = new Dictionary<Chart, long>();
         // return drawing area points
-        private IEnumerable<Point> DrawTimeSeries(IEnumerable<Point> points, bool lls, string seriesName, Chart chart, SeriesChartType chartType, bool setRange = true)
+        private IEnumerable<Point> DrawTimeSeries(
+            IEnumerable<Point> points, 
+            bool lls, 
+            string seriesName, 
+            Chart chart, 
+            SeriesChartType chartType, 
+            bool setRange = true,
+            System.Drawing.Color? color = null)
         {
             long xBase = points.Select(p => p.T).Min();
 
@@ -171,7 +169,9 @@ namespace XYPlot2
             //chart.Series["test1"].Color = Color.Red;
             foreach (var p in points) { chart.Series[seriesName].Points.AddXY(p.T, p.Y); }
             chart.Series[seriesName].ChartType = chartType;
-            chart.Series[seriesName].Color = Color.Red;
+            
+            chart.Series[seriesName].Color = color == null ? 
+                Color.Red: (System.Drawing.Color)color;
 
             #endregion
 
@@ -208,6 +208,10 @@ namespace XYPlot2
             return new Line() { A = a, B = b };
         }
 
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 
     //public class Point
